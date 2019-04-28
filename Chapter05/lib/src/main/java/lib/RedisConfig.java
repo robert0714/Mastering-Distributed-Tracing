@@ -8,6 +8,7 @@ import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.sync.RedisCommands;
 import io.opentracing.Tracer;
+import io.opentracing.contrib.redis.common.TracingConfiguration;
 import io.opentracing.contrib.redis.lettuce.TracingStatefulRedisConnection;
 
 @Configuration
@@ -17,9 +18,14 @@ public class RedisConfig {
 
     @Bean
     public StatefulRedisConnection<String, String> redisConn() {
+    	
         RedisClient client = RedisClient.create("redis://localhost");
+        
+		TracingConfiguration config = new TracingConfiguration.
+				Builder(tracer).traceWithActiveSpanOnly(false).build();
+        
         return new TracingStatefulRedisConnection<>( //
-                client.connect(), tracer, false);
+                client.connect(), config);
     }
 
     @Autowired

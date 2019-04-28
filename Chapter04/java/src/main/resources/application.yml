@@ -1,0 +1,21 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: none
+  datasource:
+    username: root
+    password: mysqlpwd
+  profiles:
+    active: "win-dev"
+
+---
+spring:
+  profiles: win-dev
+  datasource:
+    url: jdbc:mysql://192.168.99.100:3306/chapter04
+
+---
+spring:
+  profiles: linux-dev
+  datasource:
+    url: jdbc:mysql://localhost:3306/chapter04

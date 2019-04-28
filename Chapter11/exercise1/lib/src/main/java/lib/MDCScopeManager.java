@@ -27,7 +27,7 @@ public class MDCScopeManager extends ThreadLocalScopeManager {
             this.previousSampled = lookup("trace_sampled");
 
             JaegerSpanContext ctx = (JaegerSpanContext) scope.span().context();
-            String traceId = Long.toHexString(ctx.getTraceId());
+            String traceId = Long.toHexString(Long.valueOf(ctx.getTraceId()));
             String spanId = Long.toHexString(ctx.getSpanId());
             String sampled = String.valueOf(ctx.isSampled());
             
