@@ -80,3 +80,22 @@ $ docker run -d --name jaeger \
     
 
 ```
+Jaeger Web UI :http://localhost:16686/
+
+## Idebtifying sources of latency
+
+https://github.com/jaegertracing/jaeger/blob/master/examples/hotrod/services/customer/database.go
+
+```go
+
+    if !config.MySQLMutexDisabled {
+		// simulate misconfigured connection pool that only gives one connection at a time
+		d.lock.Lock(ctx)
+		defer d.lock.Unlock()
+	}
+
+	// simulate RPC delay
+	delay.Sleep(config.MySQLGetDelay, config.MySQLGetDelayStdDev)
+
+
+```
