@@ -103,11 +103,8 @@ https://github.com/jaegertracing/jaeger/blob/master/examples/hotrod/services/cus
 
 * [Yuri Shkuro, Take OpenTracing for a HotROD ride, May 2017](https://medium.com/opentracing/take-opentracing-for-a-hotrod-ride-f6e3141f7941)
 * [Yuri Shkuro, Evolving Distributed Tracing at Uber Engineering, Uber
-Engineering blog, February 2017](https://eng.uber.com/distributed-
-tracing/)
+Engineering blog, February 2017](https://eng.uber.com/distributed-tracing/)
 * [Natasha Woods, CNCF Hosts Jaeger, Cloud Native Computing Foundation
-blog, September 2017](https://www.cncf.io/blog/2017/09/13/cncf-
-hosts-jaeger/)
+blog, September 2017](https://www.cncf.io/blog/2017/09/13/cncf-hosts-jaeger/)
 * [The OpenTracing Authors. Semantic Conventions, The OpenTracing
-Specification](https://github.com/opentracing/specification/blob/
-master/semantic_conventions.md)
+Specification](https://github.com/opentracing/specification/blob/master/semantic_conventions.md)
