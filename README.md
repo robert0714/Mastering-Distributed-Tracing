@@ -12,6 +12,7 @@ _Mastering Distributed Tracing_ provides comprehensive coverage of the tracing f
 
 ## Navigation
 
+* [Chapter 2: Take Tracing for a HotROD Ride](./Chapter02)
 * [Chapter 4: Instrumentation Basics with OpenTracing](./Chapter04)
 * [Chapter 5: Instrumentation of Asynchronous Applications](./Chapter05)
 * [Chapter 7: Tracing with Service Mesh](./Chapter07)

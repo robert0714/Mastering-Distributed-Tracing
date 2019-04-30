@@ -1,3 +1,4 @@
+
 # For advice on how to change settings please see
 # http://dev.mysql.com/doc/refman/5.7/en/server-configuration-defaults.html
 
@@ -30,19 +31,11 @@ symbolic-links=0
 log-error=/var/log/mysqld.log
 pid-file=/var/run/mysqld/mysqld.pid
 lower_case_table_names=1
-character-set-server=utf8mb4
-collation-server=utf8mb4_general_ci
+character-set-server=utf8
+collation-server=utf8_general_ci
+
+#關閉加密允許DB監聽軟體可以讀入
+skip_ssl=YES
 
 #允許ssh外部連入mysql指令
 bind-address=0.0.0.0 
-
-
-server_id=4
-binlog_checksum=NONE
-gtid_mode=ON
-enforce_gtid_consistency=ON
-log_bin
-log_slave_updates=ON
-master_info_repository=TABLE
-relay_log_info_repository=TABLE
-transaction_write_set_extraction=XXHASH64
