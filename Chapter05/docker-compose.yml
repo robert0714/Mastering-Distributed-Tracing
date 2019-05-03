@@ -1,7 +1,7 @@
-version: "3"
+version: '3.7'
 services:
   kafka:
-    image: confluentinc/cp-kafka:5.0.0-2
+    image: confluentinc/cp-kafka:5.1.2-2
     ports:
       - 9092:9092
     environment:
@@ -11,7 +11,7 @@ services:
       KAFKA_BROKER_ID: 1
     restart: on-failure
   zookeeper:
-    image: confluentinc/cp-zookeeper:5.0.0-2
+    image: confluentinc/cp-zookeeper:5.1.2-2
     ports:
       - 2181:2181
     environment:
@@ -20,6 +20,13 @@ services:
     image: redis:alpine
     ports:
       - 6379:6379
+    privileged: true         
+    sysctls:
+      net.core.somaxconn: '511' 
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1 
   jaeger-all-in-one:
     image: jaegertracing/all-in-one:1.6
     ports:

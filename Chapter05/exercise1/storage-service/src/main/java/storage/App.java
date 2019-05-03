@@ -11,6 +11,10 @@ import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.messaging.handler.annotation.Payload;
 
+import io.jaegertracing.Configuration;
+import io.jaegertracing.Configuration.ReporterConfiguration;
+import io.jaegertracing.Configuration.SamplerConfiguration;
+import io.jaegertracing.internal.samplers.ProbabilisticSampler;
 import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
@@ -21,33 +25,40 @@ import lib.RedisService;
 
 @EnableKafka
 @SpringBootApplication
-@ComponentScan(basePackages="lib")
+@ComponentScan(basePackages = "lib")
 public class App {
-    @Autowired
-    RedisService redis;
+	@Autowired
+	RedisService redis;
 
-    @Autowired
-    KafkaService kafka;
+	@Autowired
+	KafkaService kafka;
 
-    @Autowired
-    Tracer tracer;
+	@Autowired
+	Tracer tracer;
 
+	@Bean
+	public AppId appId() {
+		return new AppId("storage-service");
+	}
+	
     @Bean
-    public AppId appId() {
-        return new AppId("storage-service");
+    public io.opentracing.Tracer initTracer() {
+        SamplerConfiguration samplerConfig = new SamplerConfiguration().withType("const").withParam(1);
+        ReporterConfiguration reporterConfig = new ReporterConfiguration().withLogSpans(true);
+        return new Configuration("storage-service-1").withSampler(samplerConfig).withReporter(reporterConfig).getTracer();
     }
 
-    @KafkaListener(topics = "message")
-    public void process(@Payload Message message, @Headers MessageHeaders headers) throws Exception {
-        Span span = kafka.startConsumerSpan("process", headers);
-        try (Scope scope = tracer.scopeManager().activate(span, true)) {
-            System.out.println("Received message: " + message.message);
-            redis.addMessage(message);
-            System.out.println("Added message to room.");
-        }
-    }
+	@KafkaListener(topics = "message")
+	public void process(@Payload Message message, @Headers MessageHeaders headers) throws Exception {
+		Span span = kafka.startConsumerSpan("process", headers);
+		try (Scope scope = tracer.scopeManager().activate(span, true)) {
+			System.out.println("Received message: " + message.message);
+			redis.addMessage(message);
+			System.out.println("Added message to room.");
+		}
+	}
 
-    public static void main(String[] args) throws Exception {
-        SpringApplication.run(App.class, args);
-    }
+	public static void main(String[] args) throws Exception {
+		SpringApplication.run(App.class, args);
+	}
 }
