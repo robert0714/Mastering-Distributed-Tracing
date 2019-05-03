@@ -12,9 +12,9 @@ PyMySQL==0.7.11
 # We want something like: opentracing_instrumentation>=2.2,<3
 # But Scope Manager support not officially released in opentracing_instrumentation at the time of writing.
 # This is using branch 'ot_scopemanager_integration' in @yurishkuro's fork.
--e git+https://github.com/yurishkuro/opentracing-python-instrumentation.git@6bb5db3ea4596869d581513df34533140debb6e8#egg=opentracing_instrumentation
+-e git+https://github.com/yurishkuro/opentracing-python-instrumentation.git@0b1439121cb300336771d06b4e8267a3b53418c3#egg=opentracing_instrumentation
 
 # We want something like: Flask-Opentracing>=1,<2,
 # But it does not yet support Scope Managers: https://github.com/opentracing-contrib/python-flask/issues/18
 # This is the head commit @ master at the time of writing.
--e git+https://github.com/opentracing-contrib/python-flask.git@c00398411d9c5f4f789e097ab68a6d186f8cbba3#egg=flask_opentracing
+-e git+https://github.com/opentracing-contrib/python-flask.git@7ad70ab51363f9e159168f8f77965c7b439769c0#egg=flask_opentracing

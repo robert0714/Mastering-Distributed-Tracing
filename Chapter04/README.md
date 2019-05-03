@@ -61,6 +61,29 @@ $ docker run -d --name jaeger \
 
 ```
 
+## Python
+
+```bash
+
+$ conda create --name chapter04 python=3.7 anaconda
+
+#
+# To activate this environment, use
+#
+#     $ conda activate chapter04
+#
+# To deactivate an active environment, use
+#
+#     $ conda deactivate
+
+$ cd $CH04/python 
+
+$ conda activate chapter04
+
+$ pip install -r requirements.txt
+
+```
+
 ## Exercise 1 - the Hello application
 
 In the first exercise, we are going to run a simple, single-process "Hello" application,and review its source code, so that we can later instrument it for distributed tracing.The application is implemented as a web service, which we can access by sending it HTTP requests like this:
@@ -88,3 +111,18 @@ Hello, Dr. Nefario! Why ... why are you so old?
 
 
 It looks up the information in the MySQL database that we created and seeded earlier. In the later exercises, we will extend this application to run several microservices.
+
+```bash
+
+$ docker-compose up -d
+
+```
+## Exercise 5 - using baggage
+
+```bash
+
+$ curl -H 'jaeger-baggage: greeting=Bonjour' \
+           http://localhost:8080/sayHello/Kevin
+Bonjour, Kevin!
+
+```
