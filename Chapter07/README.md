@@ -82,3 +82,34 @@ servicegraph-6c44d7dd58-2kqtm             1/1     Running     0          5m3s
 
  
 ```
+
+
+```bash
+kubectl get svc istio-ingressgateway -n istio-system
+NAME                   TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)                                                                                                                   AGE
+istio-ingressgateway   LoadBalancer   10.105.171.39   <pending>     80:31380/TCP,443:31390/TCP,31400:31400/TCP,15011:31171/TCP,8060:31505/TCP,853:30056/TCP,15030:30693/TCP,15031:32334/TCP   20h
+```
+
+當前EXTERNAL-IP處於pending狀態，我們目前的環境並沒有可用於Istio Ingress Gateway外部的負載均衡器，為了使得可以從外部訪問，通過修改istio-ingressgateway這個Service的externalIps，以為當前Kubernetes集群的kube-proxy啟用了ipvs，所以這個指定一個VIP 192.168.61.9作為externalIp。
+
+
+```bash
+
+kubectl edit svc istio-ingressgateway -n istio-system
+
+......
+spec:
+  externalIPs:
+  - 192.168.61.9
+
+......
+
+```
+
+```
+kubectl get svc istio-ingressgateway -n istio-system
+NAME                   TYPE           CLUSTER-IP      EXTERNAL-IP    PORT(S)                                                                                                                   AGE
+istio-ingressgateway   LoadBalancer   10.105.171.39   192.168.61.9   80:31380/TCP,443:31390/TCP,31400:31400/TCP,15011:31171/TCP,8060:31505/TCP,853:30056/TCP,15030:30693/TCP,15031:32334/TCP   20h
+
+```
+此時EXTERNAL-IP已經設置為192.168.61.9這個VIP了，http相關的端口為80和443
