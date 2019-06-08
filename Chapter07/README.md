@@ -234,8 +234,8 @@ $ make logs-formatter-v2
 for Retries :
 
 ```
-$ kubectl delete pod , service hello-svc formatter-svc
-
+$ kubectl delete  service hello-svc formatter-svc
+$ kubectl get   service
 $ kubectl delete pods --all
 
 ```
