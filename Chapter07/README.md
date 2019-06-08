@@ -82,7 +82,7 @@ servicegraph-6c44d7dd58-2kqtm             1/1     Running     0          5m3s
 
  
 ```
-
+需要注意的是istio-ingressgateway對port轉換的設定，這邊HTTP2是使用port 80 轉成31380，如果測試程式是使用port 8080，也是需要下指令 ( kubectl edit svc istio-ingressgateway -n istio-system ) 進行修改
 
 ```bash
 kubectl get svc istio-ingressgateway -n istio-system
