@@ -82,7 +82,7 @@ servicegraph-6c44d7dd58-2kqtm             1/1     Running     0          5m3s
 
  
 ```
-需要注意的是istio-ingressgateway對port轉換的設定，這邊HTTP2是使用port 80 轉成31380，如果測試程式是使用port 8080，也是需要下指令 ( kubectl edit svc istio-ingressgateway -n istio-system ) 進行修改
+
 
 ```bash
 kubectl get svc istio-ingressgateway -n istio-system
@@ -113,6 +113,44 @@ istio-ingressgateway   LoadBalancer   10.105.171.39   192.168.61.9   80:31380/TC
 
 ```
 此時EXTERNAL-IP已經設置為192.168.61.9這個VIP了，http相關的端口為80和443
+
+需要注意的是istio-ingressgateway對port轉換的設定，這邊HTTP2是使用port 80 轉成31380，如果測試程式是使用port 8080，也是需要下指令 ( kubectl edit svc istio-ingressgateway -n istio-system ) 進行修改
+
+```bash
+$ kubectl edit svc istio-ingressgateway -n istio-system
+```
+
+content
+
+```yaml
+
+apiVersion: v1
+kind: Service
+...
+spec:
+  clusterIP: 10.110.188.50
+  externalTrafficPolicy: Cluster
+  ports:
+  - name: http2
+    nodePort: 31380
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  - name: https
+    nodePort: 31390
+    port: 443
+    protocol: TCP
+    targetPort: 443
+....
+  selector:
+    app: istio-ingressgateway
+    istio: ingressgateway
+  sessionAffinity: None
+  type: LoadBalancer
+status:
+  loadBalancer: {}
+
+``
 
 # The Hello application
 
