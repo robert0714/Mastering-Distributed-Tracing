@@ -199,7 +199,10 @@ $ make hostport
 export GATEWAY_URL=192.168.99.103:31380
 
 ```
-Either execute the export command manually or run eval $(make hostport).
+Either execute the export command manually or run
+```
+eval $(make hostport).
+```
 Then use the GATEWAY_URL variable to send a request to the application using curl:
 
 
@@ -227,5 +230,15 @@ $ make logs-formatter-v2
 
 
 ```
+
+for Retries :
+
+```
+$ kubectl delete pod , service hello-svc formatter-svc
+
+$ kubectl delete pods --all
+
+```
+
 
 As you can see, the application is working. Now it's time to look at the trace collected from this request. The Istio demo we installed includes Jaeger installation, but it is running in the virtual machine and we need to set up port forwarding to access it from the local host. Fortunately, I have included another Makefile target for that:
