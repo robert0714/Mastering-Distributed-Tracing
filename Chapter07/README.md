@@ -8,7 +8,7 @@ It also shows how _baggage_ (a form of distributed context propagation) can be u
 
 ```
 
-minikube start --cpus 4 --memory 8192 --kubernetes-version v1.13.7
+minikube start --cpus 4 --memory 8192 
 
 kubectl cluster-info
 
@@ -18,7 +18,7 @@ or
 
 ```
 
-sudo -E  minikube  start  --vm-driver=none --cpus 4 --memory 8192
+sudo -E  minikube  start 
 
 kubectl cluster-info
 ```
