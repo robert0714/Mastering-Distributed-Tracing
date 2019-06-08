@@ -234,9 +234,10 @@ $ make logs-formatter-v2
 for Retries :
 
 ```
-$ kubectl delete  service hello-svc formatter-svc
-$ kubectl get   service
-$ kubectl delete pods --all
+$  make   delete-app
+$  kubectl delete  service hello-svc formatter-svc
+$  kubectl get   service
+$  kubectl delete pods --all
 
 ```
 
