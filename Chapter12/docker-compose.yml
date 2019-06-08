@@ -1,4 +1,4 @@
-version: '3.5'
+version: '3.7'
 
 # to generate the traces, can use hotrod:
 # $ JAEGER_ENDPOINT=http://localhost:14268/api/traces go run ./examples/hotrod/main.go all
@@ -6,28 +6,40 @@ version: '3.5'
 services:
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.2.3
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.7.2
+    container_name: chapter12_elasticsearch
     volumes:
       - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
     ports:
       - "9200:9200"
       - "9300:9300"
+    sysctls:
+      net.core.somaxconn: '511' 
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1 
     environment:
-      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+      - "TZ=Asia/Taipei"
+      - "ES_JAVA_OPTS=-Xmx256m -Xms256m"
 
   kibana:
-    image: docker.elastic.co/kibana/kibana-oss:6.2.3
+    image: docker.elastic.co/kibana/kibana-oss:6.7.2
+    container_name: chapter12_kibana
     volumes:
       - ./kibana.yml:/usr/share/kibana/config/kibana.yml:ro
     ports:
       - "5601:5601"
+    environment:
+      - "TZ=Asia/Taipei" 
     depends_on:
       - elasticsearch
 
 # $ docker exec -it $(docker ps -qf "name=kafka") /bin/bash
 # $ kafka-consumer-groups --bootstrap-server kafka:9092 --describe --group jaeger-ingester
   kafka:
-    image: confluentinc/cp-kafka:4.0.1
+    image: confluentinc/cp-kafka:4.0.3
+    container_name: chapter12_kafka
     ports:
       - "9092:9092"
     environment:
@@ -39,17 +51,21 @@ services:
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://localhost:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      TZ: Asia/Taipei
     restart: on-failure
 
   zookeeper:
-    image: confluentinc/cp-zookeeper:4.0.1
+    image: confluentinc/cp-zookeeper:4.0.3
+    container_name: chapter12_zookeeper
     ports:
       - "2181:2181"
     environment:
       ZOOKEEPER_CLIENT_PORT: "2181"
+      TZ: Asia/Taipei
 
   jaeger-collector:
     image: jaegertracing/jaeger-collector:1.8.2
+    container_name: chapter12_jaeger-collector
     ports:
       # HTTP collector port to receive spans
       - "14268:14268"
@@ -60,9 +76,11 @@ services:
       LOG_LEVEL: "debug"
       SPAN_STORAGE_TYPE: "kafka"
       KAFKA_BROKERS: "kafka:29092"
+      TZ: Asia/Taipei
 
   jaeger-ingester:
     image: jaegertracing/jaeger-ingester:1.8.2
+    container_name: chapter12_jaeger-ingester
     ports:
       # HTTP health check port: $ curl -v http://localhost:14270/
       - "14270:14270"
@@ -77,9 +95,11 @@ services:
       ES_SERVER_URLS: "http://elasticsearch:9200"
       KAFKA_BROKERS: "kafka:29092"
       METRICS_BACKEND: "expvar"
+      TZ: Asia/Taipei
 
   jaeger:
     image: jaegertracing/jaeger-query:1.8.2
+    container_name: chapter12_jaeger-query
     ports:
       # Jaeger UI port
       - "16686:16686"
@@ -90,6 +110,7 @@ services:
       # LOG_LEVEL: "debug"
       SPAN_STORAGE_TYPE: "elasticsearch"
       ES_SERVER_URLS: "http://elasticsearch:9200"
+      TZ: Asia/Taipei
 
   # tools:
   #   image: alpine:latest
@@ -97,14 +118,19 @@ services:
   #     - watch 
   #     - echo
   #     - hello
+  #   environment:
+  #     TZ: Asia/Taipei
 
   # prom:
   #   image: prom/prometheus:v2.5.0
+  #    container_name: chapter12_prom
   #   volumes:
   #     - ./prometheus/config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
   #   command: "--config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus"
   #   ports:
   #     - 9090:9090
+  #   environment:
+  #     TZ: Asia/Taipei
 
   # jaeger:
   #   image: jaegertracing/all-in-one:1.8.2
@@ -121,5 +147,6 @@ services:
   #     - "9411:9411"
   #   restart: on-failure
   #   environment:
+  #     TZ: Asia/Taipei
   #     SPAN_STORAGE_TYPE: "elasticsearch"
   #     ES_SERVER_URLS: "http://elasticsearch:9200"

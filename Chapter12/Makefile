@@ -19,7 +19,7 @@ es-drop-index:
 kibana-create-index-pattern:
 	curl -XPOST 'http://localhost:5601/api/saved_objects/index-pattern' \
 		-H 'Content-Type: application/json' \
-		-H 'kbn-version: 6.2.3' \
+		-H 'kbn-version: 6.7.2' \
 		-d '{"attributes":{"title":"trace-summaries","timeFieldName":"@timestamp"}}'
 
 microsim-help:
