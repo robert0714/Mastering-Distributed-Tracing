@@ -113,3 +113,119 @@ istio-ingressgateway   LoadBalancer   10.105.171.39   192.168.61.9   80:31380/TC
 
 ```
 此時EXTERNAL-IP已經設置為192.168.61.9這個VIP了，http相關的端口為80和443
+
+# The Hello application
+
+## Distributed tracing with Istio
+We are now ready to run the Hello application. First, we need to build a Docker image, so that we can deploy it to Kubernetes. The build process will store the image in the local Docker registry, but that's not good since minikube is run entirely in a virtual machine and we need to push the image to the image registry in that installation. Therefore, we need to define some environment variables to instruct Docker where to push the build. This can be done with the following command:
+
+
+```
+$ eval $(minikube docker-env)
+
+```
+After that, we can build the application:
+
+```
+$ make build-app
+mvn install
+[INFO] Scanning for projects...
+[... skipping lots of logs ...]
+[INFO] BUILD SUCCESS
+[INFO] -----------------------------------------------------------------
+docker build -t hello-app:latest .
+Sending build context to Docker daemon 44.06MB
+Step 1/7 : FROM openjdk:alpine
+[... skipping lots of logs ...]
+Successfully built 67659c954c30
+Successfully tagged hello-app:latest
+*** make sure the right docker repository is used
+*** on minikube run this first: eval $(minikube docker-env)
+
+```
+
+We added a few help messages at the end to remind you to build against the
+right Docker registry. After the build is done, we can deploy the application:
+
+
+```
+$ make deploy-app
+
+```
+
+The make target executes these commands:
+deploy-app:
+
+
+```
+istioctl kube-inject -f app.yml | kubectl apply -f -
+kubectl apply -f gateway.yml
+istioctl create -f routing.yml
+
+```
+
+The first one instructs Istio to decorate our deployment instructions in app.yml with the sidecar integration, and applies the result. The second command configures the ingress path, so that we can access the hello service from outside of the networking namespace created for the application. The last command adds some extra routing based on the request headers, which we will discuss later in this chapter.
+
+To verify that the services have been deployed successfully, we can list the running pods:
+
+
+```
+$ kubectl get pods
+NAME                                READY   STATUS    RESTARTS   AGE
+formatter-svc-v1-5dd5774dbf-94v7p   2/2     Running   0          12h
+formatter-svc-v2-6cff8d65b9-zrjsz   2/2     Running   0          12h
+hello-svc-6b5c88f594-f2pxb          2/2     Running   0          12h
+$
+
+```
+
+As expected, we see the hello service and two versions of the formatter service.
+In case you run into issues deploying the application, the Makefile includes useful
+targets to get the logs from the pods:
+
+```
+$ make logs-hello
+$ make logs-formatter-v1
+$ make logs-formatter-v2
+
+
+```
+
+We are almost ready to access the application via curl, but first we need to get the address of the Istio ingress endpoint. I have defined a helper target in the Makefile
+for that:
+
+```
+$ make hostport
+export GATEWAY_URL=192.168.99.103:31380
+
+```
+Either execute the export command manually or run eval $(make hostport).
+Then use the GATEWAY_URL variable to send a request to the application using curl:
+
+
+```
+$ curl http://$GATEWAY_URL/sayHello/Brian
+Hello, puny human Brian! Morbo asks: how do you like running on
+Kubernetes?
+
+```
+or
+
+```
+
+[Chapter07]$ curl http://$GATEWAY_URL/sayHello/Brian
+<!doctype html><html lang="en"><head><title>HTTP Status 500 – Internal Server Error</title><style type="text/css">h1 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:22px;} h2 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:16px;} h3 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:14px;} body {font-family:Tahoma,Arial,sans-serif;color:black;background-color:white;} b {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;} p {font-family:Tahoma,Arial,sans-serif;background:white;color:black;font-size:12px;} a {color:black;} a.name {color:black;} .line {height:1px;background-color:#525D76;border:none;}</style></head><body><h1>HTTP Status 500 – Internal Server Error</h1></body></html>
+
+[Chapter07]$
+
+```
+if yuo encounter the porlem,you coould try
+```
+$ make logs-hello
+$ make logs-formatter-v1
+$ make logs-formatter-v2
+
+
+```
+
+As you can see, the application is working. Now it's time to look at the trace collected from this request. The Istio demo we installed includes Jaeger installation, but it is running in the virtual machine and we need to set up port forwarding to access it from the local host. Fortunately, I have included another Makefile target for that:
