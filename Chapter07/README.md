@@ -221,7 +221,7 @@ As expected, we see the hello service and two versions of the formatter service.
 In case you run into issues deploying the application, the Makefile includes useful
 targets to get the logs from the pods:
 
-```
+```bash
 $ make logs-hello
 $ make logs-formatter-v1
 $ make logs-formatter-v2
@@ -232,19 +232,23 @@ $ make logs-formatter-v2
 We are almost ready to access the application via curl, but first we need to get the address of the Istio ingress endpoint. I have defined a helper target in the Makefile
 for that:
 
-```
+
+```bash
 $ make hostport
 export GATEWAY_URL=192.168.99.103:31380
 
 ```
 Either execute the export command manually or run
-```
+
+
+```bash
 eval $(make hostport).
 ```
 Then use the GATEWAY_URL variable to send a request to the application using curl:
 
 
-```
+
+```bash
 $ curl http://$GATEWAY_URL/sayHello/Brian
 Hello, puny human Brian! Morbo asks: how do you like running on
 Kubernetes?
@@ -252,16 +256,19 @@ Kubernetes?
 ```
 or
 
-```
+
+```bash
 
 [Chapter07]$ curl http://$GATEWAY_URL/sayHello/Brian
 <!doctype html><html lang="en"><head><title>HTTP Status 500 – Internal Server Error</title><style type="text/css">h1 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:22px;} h2 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:16px;} h3 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:14px;} body {font-family:Tahoma,Arial,sans-serif;color:black;background-color:white;} b {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;} p {font-family:Tahoma,Arial,sans-serif;background:white;color:black;font-size:12px;} a {color:black;} a.name {color:black;} .line {height:1px;background-color:#525D76;border:none;}</style></head><body><h1>HTTP Status 500 – Internal Server Error</h1></body></html>
 
-[Chapter07]$
+```
 
-```
+[Chapter07]$
+ 
 if yuo encounter the porlem,you coould try
-```
+
+```bash
 $ make logs-hello
 $ make logs-formatter-v1
 $ make logs-formatter-v2
@@ -271,7 +278,8 @@ $ make logs-formatter-v2
 
 for Retries :
 
-```
+
+```bash
 $  make   delete-app
 $  kubectl delete  service hello-svc formatter-svc
 $  kubectl get   service
