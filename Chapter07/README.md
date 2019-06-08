@@ -150,7 +150,7 @@ spec:
 status:
   loadBalancer: {}
 
-``
+```
 
 # The Hello application
 
@@ -158,13 +158,14 @@ status:
 We are now ready to run the Hello application. First, we need to build a Docker image, so that we can deploy it to Kubernetes. The build process will store the image in the local Docker registry, but that's not good since minikube is run entirely in a virtual machine and we need to push the image to the image registry in that installation. Therefore, we need to define some environment variables to instruct Docker where to push the build. This can be done with the following command:
 
 
-```
+```bash
 $ eval $(minikube docker-env)
 
 ```
 After that, we can build the application:
 
-```
+
+```bash
 $ make build-app
 mvn install
 [INFO] Scanning for projects...
@@ -186,7 +187,8 @@ We added a few help messages at the end to remind you to build against the
 right Docker registry. After the build is done, we can deploy the application:
 
 
-```
+
+```bash
 $ make deploy-app
 
 ```
@@ -195,7 +197,8 @@ The make target executes these commands:
 deploy-app:
 
 
-```
+
+```bash
 istioctl kube-inject -f app.yml | kubectl apply -f -
 kubectl apply -f gateway.yml
 istioctl create -f routing.yml
@@ -207,7 +210,8 @@ The first one instructs Istio to decorate our deployment instructions in app.yml
 To verify that the services have been deployed successfully, we can list the running pods:
 
 
-```
+
+```bash
 $ kubectl get pods
 NAME                                READY   STATUS    RESTARTS   AGE
 formatter-svc-v1-5dd5774dbf-94v7p   2/2     Running   0          12h
