@@ -1,4 +1,4 @@
-# Chapter 4: Take Tracing for a HotROD Ride
+# Chapter 2: Take Tracing for a HotROD Ride
 
 In this chapter, we are going to look at concrete examples of the diagnostic and troubleshooting tools provided by
 a tracing system.The chapter will:

@@ -82,7 +82,7 @@ servicegraph-6c44d7dd58-2kqtm             1/1     Running     0          5m3s
 
  
 ```
-需要注意的是istio-ingressgateway對port轉換的設定，這邊HTTP2是使用port 80 轉成31380，如果測試程式是使用port 8080，也是需要下指令 ( kubectl edit svc istio-ingressgateway -n istio-system ) 進行修改
+
 
 ```bash
 kubectl get svc istio-ingressgateway -n istio-system
@@ -114,19 +114,58 @@ istio-ingressgateway   LoadBalancer   10.105.171.39   192.168.61.9   80:31380/TC
 ```
 此時EXTERNAL-IP已經設置為192.168.61.9這個VIP了，http相關的端口為80和443
 
+需要注意的是istio-ingressgateway對port轉換的設定，這邊HTTP2是使用port 80 轉成31380，如果測試程式是使用port 8080，也是需要下指令 ( kubectl edit svc istio-ingressgateway -n istio-system ) 進行修改
+
+```bash
+$ kubectl edit svc istio-ingressgateway -n istio-system
+```
+
+content
+
+```yaml
+
+apiVersion: v1
+kind: Service
+...
+spec:
+  clusterIP: 10.110.188.50
+  externalTrafficPolicy: Cluster
+  ports:
+  - name: http2
+    nodePort: 31380
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  - name: https
+    nodePort: 31390
+    port: 443
+    protocol: TCP
+    targetPort: 443
+....
+  selector:
+    app: istio-ingressgateway
+    istio: ingressgateway
+  sessionAffinity: None
+  type: LoadBalancer
+status:
+  loadBalancer: {}
+
+```
+
 # The Hello application
 
 ## Distributed tracing with Istio
 We are now ready to run the Hello application. First, we need to build a Docker image, so that we can deploy it to Kubernetes. The build process will store the image in the local Docker registry, but that's not good since minikube is run entirely in a virtual machine and we need to push the image to the image registry in that installation. Therefore, we need to define some environment variables to instruct Docker where to push the build. This can be done with the following command:
 
 
-```
+```bash
 $ eval $(minikube docker-env)
 
 ```
 After that, we can build the application:
 
-```
+
+```bash
 $ make build-app
 mvn install
 [INFO] Scanning for projects...
@@ -148,7 +187,8 @@ We added a few help messages at the end to remind you to build against the
 right Docker registry. After the build is done, we can deploy the application:
 
 
-```
+
+```bash
 $ make deploy-app
 
 ```
@@ -157,7 +197,8 @@ The make target executes these commands:
 deploy-app:
 
 
-```
+
+```bash
 istioctl kube-inject -f app.yml | kubectl apply -f -
 kubectl apply -f gateway.yml
 istioctl create -f routing.yml
@@ -169,7 +210,8 @@ The first one instructs Istio to decorate our deployment instructions in app.yml
 To verify that the services have been deployed successfully, we can list the running pods:
 
 
-```
+
+```bash
 $ kubectl get pods
 NAME                                READY   STATUS    RESTARTS   AGE
 formatter-svc-v1-5dd5774dbf-94v7p   2/2     Running   0          12h
@@ -183,7 +225,7 @@ As expected, we see the hello service and two versions of the formatter service.
 In case you run into issues deploying the application, the Makefile includes useful
 targets to get the logs from the pods:
 
-```
+```bash
 $ make logs-hello
 $ make logs-formatter-v1
 $ make logs-formatter-v2
@@ -194,19 +236,23 @@ $ make logs-formatter-v2
 We are almost ready to access the application via curl, but first we need to get the address of the Istio ingress endpoint. I have defined a helper target in the Makefile
 for that:
 
-```
+
+```bash
 $ make hostport
 export GATEWAY_URL=192.168.99.103:31380
 
 ```
 Either execute the export command manually or run
-```
+
+
+```bash
 eval $(make hostport).
 ```
 Then use the GATEWAY_URL variable to send a request to the application using curl:
 
 
-```
+
+```bash
 $ curl http://$GATEWAY_URL/sayHello/Brian
 Hello, puny human Brian! Morbo asks: how do you like running on
 Kubernetes?
@@ -214,16 +260,20 @@ Kubernetes?
 ```
 or
 
-```
+
+```bash
 
 [Chapter07]$ curl http://$GATEWAY_URL/sayHello/Brian
+
 <!doctype html><html lang="en"><head><title>HTTP Status 500 – Internal Server Error</title><style type="text/css">h1 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:22px;} h2 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:16px;} h3 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:14px;} body {font-family:Tahoma,Arial,sans-serif;color:black;background-color:white;} b {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;} p {font-family:Tahoma,Arial,sans-serif;background:white;color:black;font-size:12px;} a {color:black;} a.name {color:black;} .line {height:1px;background-color:#525D76;border:none;}</style></head><body><h1>HTTP Status 500 – Internal Server Error</h1></body></html>
 
 [Chapter07]$
+```
 
-```
+ 
 if yuo encounter the porlem,you coould try
-```
+
+```bash
 $ make logs-hello
 $ make logs-formatter-v1
 $ make logs-formatter-v2
@@ -233,10 +283,12 @@ $ make logs-formatter-v2
 
 for Retries :
 
-```
-$ kubectl delete  service hello-svc formatter-svc
-$ kubectl get   service
-$ kubectl delete pods --all
+
+```bash
+$  make   delete-app
+$  kubectl delete  service hello-svc formatter-svc
+$  kubectl get   service
+$  kubectl delete pods --all
 
 ```
 
