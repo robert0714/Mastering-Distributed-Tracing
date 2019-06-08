@@ -1,35 +1,45 @@
-version: '3.5'
+version: '3.7'
 
 services:
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.2.3
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.7.2
     volumes:
       - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
     ports:
       - "9200:9200"
       - "9300:9300"
+    sysctls:
+      net.core.somaxconn: '511' 
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1 
     environment:
-      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+      - "TZ=Asia/Taipei"
+      - "ES_JAVA_OPTS=-Xmx256m -Xms256m"
 
   logstash:
-    image: docker.elastic.co/logstash/logstash-oss:6.2.3
+    image: docker.elastic.co/logstash/logstash-oss:6.7.2
     volumes:
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
       - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
     ports:
       - "5000:5000"
     environment:
-      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+      - "TZ=Asia/Taipei"
+      - "LS_JAVA_OPTS=-Xmx256m -Xms256m"
     depends_on:
       - elasticsearch
 
   kibana:
-    image: docker.elastic.co/kibana/kibana-oss:6.2.3
+    image: docker.elastic.co/kibana/kibana-oss:6.7.2
     volumes:
       - ./kibana/config/:/usr/share/kibana/config:ro
     ports:
       - "5601:5601"
+    environment:
+      - "TZ=Asia/Taipei"
     depends_on:
       - elasticsearch
 
@@ -38,11 +48,15 @@ services:
     volumes:
       - ./prometheus/config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     command: "--config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus"
+    environment:
+      - "TZ=Asia/Taipei"
     ports:
       - 9090:9090
 
   jaeger:
     image: jaegertracing/all-in-one:1.6
+    environment:
+      - TZ=Asia/Taipei
     ports:
       - "5775:5775/udp"
       - "6831:6831/udp"
@@ -62,9 +76,10 @@ services:
     ports:
       - 8080:8080
     environment:
-      logstash_host: logstash
-      formatter_host: formatter-1
-      formatter_port: 8082
+      - logstash_host=logstash
+      - formatter_host=formatter-1
+      - formatter_port=8082 
+      - "TZ=Asia/Taipei"
 
   formatter-1:
     build:
@@ -72,4 +87,5 @@ services:
     ports:
       - 8082:8082
     environment:
-      logstash_host: logstash
+      - logstash_host=logstash
+      - TZ=Asia/Taipei

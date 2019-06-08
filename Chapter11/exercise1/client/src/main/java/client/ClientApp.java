@@ -1,4 +1,4 @@
-package client;
+	package client;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -25,10 +25,10 @@ public class ClientApp {
         return restTemplateBuilder.build();
     }
 
-    @Bean
-    public CommandLineRunner runner() {
-        return new Runner();
-    }
+//    @Bean
+//    public CommandLineRunner runner() {
+//        return new Runner();
+//    }
 
     public static void main(String[] args) {
         SpringApplication.run(ClientApp.class, args);
