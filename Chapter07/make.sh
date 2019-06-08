@@ -8,7 +8,7 @@ if [ "$1" != "" ]; then
      B) echo "you input B" ;;
      C) echo "you input C" ;;
      build-app) 
-        ./mvn install
+        mvn install
         docker build -t hello-app:latest .
         echo '*** make sure the right docker repository is used'
         echo '*** on minikube run this first: eval $$(minikube docker-env)' 
