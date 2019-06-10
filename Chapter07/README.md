@@ -292,5 +292,60 @@ $  kubectl delete pods --all
 
 ```
 
+DashBoard:
+
+```bash
+
+minikube  dashboard
+
+```
+## NodePort
+
+This way of accessing Dashboard is only recommended for development environments in a single node setup. 
+
+Edit `kubernetes-dashboard` service.
+```sh
+$ kubectl -n kube-system edit service kubernetes-dashboard
+```
+
+You should see `yaml` representation of the service. Change `type: ClusterIP` to `type: NodePort` and save file. If it's already changed go to next step.
+```yaml
+# Please edit the object below. Lines beginning with a '#' will be ignored,
+# and an empty file will abort the edit. If an error occurs while saving this file will be
+# reopened with the relevant failures.
+#
+apiVersion: v1
+...
+  name: kubernetes-dashboard
+  namespace: kube-system
+  resourceVersion: "343478"
+  selfLink: /api/v1/namespaces/kube-system/services/kubernetes-dashboard-head
+  uid: 8e48f478-993d-11e7-87e0-901b0e532516
+spec:
+  clusterIP: 10.100.124.90
+  externalTrafficPolicy: Cluster
+  ports:
+  - port: 443
+    protocol: TCP
+    targetPort: 8443
+  selector:
+    k8s-app: kubernetes-dashboard
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}
+```
+
+Next we need to check port on which Dashboard was exposed.
+```sh
+$ kubectl -n kube-system get service kubernetes-dashboard
+NAME                   CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+kubernetes-dashboard   10.100.124.90   <nodes>       443:31707/TCP   21h
+```
+
+Dashboard has been exposed on port `31707 (HTTPS)`. Now you can access it from your browser at: `https://<master-ip>:31707`. `master-ip` can be found by executing `kubectl cluster-info`. Usually it is either `127.0.0.1` or IP of your machine, assuming that your cluster is running directly on the machine, on which these commands are executed.
+
+In case you are trying to expose Dashboard using NodePort on a multi-node cluster, then you have to find out IP of the node on which Dashboard is running to access it. Instead of accessing `https://<master-ip>:<nodePort>` you should access `https://<node-ip>:<nodePort>`.
+
 
 As you can see, the application is working. Now it's time to look at the trace collected from this request. The Istio demo we installed includes Jaeger installation, but it is running in the virtual machine and we need to set up port forwarding to access it from the local host. Fortunately, I have included another Makefile target for that:
